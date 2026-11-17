@@ -5,6 +5,7 @@ public class PlayerScript : MonoBehaviour
 {
     Rigidbody2D rb;
     PlayerInput playerInput;
+    SpriteRenderer sr;
 
     [SerializeField] float movementForce = 10.0f;
     [SerializeField] float jumpForce = 5.0f;
@@ -17,6 +18,7 @@ public class PlayerScript : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         playerInput = GetComponent<PlayerInput>();
+        sr = GetComponent<SpriteRenderer>();
 
         Physics2D.queriesStartInColliders = false;
 
@@ -26,18 +28,34 @@ public class PlayerScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
+        /*if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
             Jump();
-        }
+        }*/
         //movementInput = Input.GetAxis("Horizontal");
         movementInput = playerInput.actions["Move"].ReadValue<Vector2>();
+
+        if (movementInput.x != 0f)
+        {
+            if (movementInput.x > 0f)
+            {
+                sr.flipX = false;
+            }
+            else
+            {
+                sr.flipX = true;
+            }
+        }
     }
 
-    void Jump()
+    public void Jump(InputAction.CallbackContext context)
     {
-        isGrounded = false;
-        rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+        if (context.performed && isGrounded)
+        {
+            rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+            isGrounded = false;
+        }
+
     }
 
     void FixedUpdate()
